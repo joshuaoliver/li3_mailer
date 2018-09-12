@@ -1,0 +1,17 @@
+{
+    "name": "eLod/li3_mailer",
+    "type": "library",
+    "description": "A plugin for sending email messages from your li3 application",
+    "keywords": ["mail"],
+    "homepage": "http://lithify.me/",
+    "authors": [
+        {
+            "name": "eLod",
+            "homepage": "http://lithify.me/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
