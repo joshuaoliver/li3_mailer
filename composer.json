@@ -1,6 +1,6 @@
 {
     "name": "elod/li3_mailer",
-    "type": "library",
+    "type": "lithium-library",
     "description": "A plugin for sending email messages from your li3 application",
     "keywords": ["mail"],
     "homepage": "http://lithify.me/",
