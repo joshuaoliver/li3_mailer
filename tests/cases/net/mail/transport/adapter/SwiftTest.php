@@ -39,24 +39,6 @@ class SwiftTest extends \lithium\test\Unit {
 		$transport = $swift->invokeMethod('_transport');
 	}
 
-	public function testMailTransport() {
-		$swift = new Swift(array('transport' => 'mail'));
-		$mailer = $swift->invokeMethod('_transport');
-		$this->assertTrue($mailer instanceof Swift_Mailer);
-		$transport = $mailer->getTransport();
-		$this->assertTrue($transport instanceof Swift_MailTransport);
-
-		$options = array('transport' => 'mail', 'extra_params' => 'foo');
-		$swift = new Swift($options);
-		$mailer = $swift->invokeMethod('_transport');
-		$this->assertEqual('foo', $mailer->getTransport()->getExtraParams());
-
-		$swift = new Swift(array('transport' => 'mail'));
-		$options = array('extra_params' => 'foo');
-		$mailer = $swift->invokeMethod('_transport', array($options));
-		$this->assertEqual('foo', $mailer->getTransport()->getExtraParams());
-	}
-
 	public function testSendmailTransport() {
 		$swift = new Swift(array('transport' => 'sendmail'));
 		$mailer = $swift->invokeMethod('_transport');

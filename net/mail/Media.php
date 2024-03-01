@@ -3,6 +3,7 @@
 namespace li3_mailer\net\mail;
 
 use li3_mailer\net\mail\MediaException;
+use lithium\core\AutoConfigurable;
 use lithium\core\Libraries;
 
 /**
@@ -11,7 +12,10 @@ use lithium\core\Libraries;
  * configuring how the framework handles output in different formats for
  * rendering emails.
  */
-class Media extends \lithium\core\StaticObject {
+class Media {
+
+	use AutoConfigurable;
+
 	/**
 	 * Maps file extensions to content-types.  Used to render content into
 	 * message. Can be modified with `Media::type()`.

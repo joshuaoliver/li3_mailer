@@ -2,6 +2,7 @@
 
 namespace li3_mailer\action;
 
+use lithium\core\AutoConfigurable;
 use lithium\util\Inflector;
 use BadMethodCallException;
 
@@ -15,7 +16,9 @@ use BadMethodCallException;
  * @see li3_mailer\net\mail\Delivery
  * @see li3_mailer\action\Mailer::deliver()
  */
-class Mailer extends \lithium\core\StaticObject {
+class Mailer {
+
+	use AutoConfigurable;
 
 	/**
 	 * Holds extra configurations per message (and a default
