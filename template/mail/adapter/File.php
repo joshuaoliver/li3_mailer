@@ -96,7 +96,9 @@ class File extends \lithium\template\view\adapter\File {
 		$message =& $this->_message;
 		if (!$this->_request && $message) {
 			$media = $classes['media'];
-			$this->_request = $media::invokeMethod('_request', array($message));
+			//$this->_request = $media::invokeMethod('_request', array($message));
+            //$this->_request = $media::_request($message);
+            $this->_request = Libraries::instance(null, $media,array("_request",array($message)));
 		}
 		$request =& $this->_request;
 		$context =& $this->_context;

@@ -2,7 +2,10 @@
 
 namespace li3_mailer\action;
 
+use li3_mailer\net\mail\Message;
+use lithium\aop\Filters;
 use lithium\core\AutoConfigurable;
+use lithium\core\Libraries;
 use lithium\util\Inflector;
 use BadMethodCallException;
 
@@ -62,13 +65,13 @@ class Mailer {
 	 * @return li3_mailer\net\mail\Message A message instance.
 	 */
 	public static function message(array $options = array()) {
-		$filter = function($self, $params) {
+		$filter = function($params) {
 			$options = $params['options'];
-			$class = isset($options['class']) ? $options['class'] : 'message';
+            $class = $options['class'] ?? self::$_classes['message'];
 			unset($options['class']);
-			return $self::invokeMethod('_instance', array($class, $options));
+            return Libraries::instance(null, $class, $options);
 		};
-		return static::_filter(__FUNCTION__, compact('options'), $filter);
+		return Filters::run(get_called_class(), __FUNCTION__, compact('options'), $filter);
 	}
 
 	/**
@@ -105,8 +108,9 @@ class Mailer {
 			$deliveryName = 'default';
 		}
 		unset($options['delivery']);
-
-		$messageOptions = $options + $delivery::config($deliveryName);
+            
+        $config = $delivery::config($deliveryName);
+        $messageOptions = $options + ($config ?? []);
 		$message = static::message($messageOptions);
 		$transport = $delivery::adapter($deliveryName);
 
@@ -131,12 +135,12 @@ class Mailer {
 		$params = compact('options', 'data', 'message');
 		$params += compact('transport', 'transportOptions');
 
-		$filter = function($self, $params) use ($media) {
+		$filter = function($params) use ($media) {
 			extract($params);
 			$media::render($message, $data, $options);
 			return $transport->deliver($message, $transportOptions);
 		};
-		return static::_filter(__FUNCTION__, $params, $filter);
+		return Filters::run(get_called_class(),__FUNCTION__, $params, $filter);
 	}
 
 	/**

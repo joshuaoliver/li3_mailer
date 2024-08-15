@@ -3,6 +3,7 @@
 namespace li3_mailer\net\mail;
 
 use li3_mailer\net\mail\MediaException;
+use lithium\aop\Filters;
 use lithium\core\AutoConfigurable;
 use lithium\core\Libraries;
 
@@ -109,7 +110,7 @@ class Media {
 		$params = array('message' => &$message) + compact('data', 'options');
 		$handlers = static::_handlers();
 
-		$filter = function($self, $params) use ($handlers) {
+		$filter = function($params) use ($handlers) {
 			$defaults = array(
 				'template' => null, 'layout' => 'default', 'view' => null
 			);
@@ -126,17 +127,20 @@ class Media {
 				$filter = function($v) { return $v !== null; };
 				$handler = array_filter($handler, $filter);
 				$handler += $handlers['default'] + $defaults;
-				$handler['paths'] = $self::invokeMethod(
-					'_finalizePaths',
+				/*$handler['paths'] = Libraries::instance(
+					null, '_finalizePaths',
 					array($handler['paths'], $options)
-				);
+				);*/
+                $handler['paths'] = self::_finalizePaths($handler['paths'], $options);
 
-				$params = array($handler, $data, $message);
-				$message->body($type, $self::invokeMethod('_handle', $params));
+				//$params = array($handler, $data, $message);
+                //$message->body($type, $self::invokeMethod('_handle', $params));
+				//$message->body($type, Libraries::instance(null, '_handle', $params));
+				$message->body($type, self::_handle($handler, $data, $message));
 			}
 			$message->ensureStandardCompliance();
 		};
-		static::_filter(__FUNCTION__, $params, $filter);
+        Filters::run(get_called_class(),__FUNCTION__, $params, $filter);
 	}
 
 	/**
@@ -154,7 +158,7 @@ class Media {
 	protected static function _handle($handler, $data, &$message) {
 		$params = array('message' => &$message) + compact('handler', 'data');
 
-		return static::_filter(__FUNCTION__, $params, function($self, $params) {
+		return Filters::run(get_called_class(),__FUNCTION__, $params, function($params) {
 			$message = $params['message'];
 			$handler = $params['handler'];
 			$data = $params['data'];
@@ -165,7 +169,7 @@ class Media {
 					return $data;
 				case $handler['view']:
 					unset($options['view']);
-					$view = $self::view($handler, $data, $message, $options);
+					$view = self::view($handler, $data, $message, $options);
 					return $view->render('all', (array) $data, $options);
 				default:
 					$error = 'Could not interpret type settings for handler.';
@@ -197,20 +201,20 @@ class Media {
 		$params = array('message' => &$message);
 		$params += compact('handler', 'data', 'options');
 
-		return static::_filter(__FUNCTION__, $params, function($self, $params) {
+		return Filters::run(get_called_class(),__FUNCTION__, $params, function($params) {
 			$data = $params['data'];
 			$options = $params['options'];
 			$handler = $params['handler'];
 			$message =& $params['message'];
 
 			if (!is_array($handler)) {
-				$handler = $self::invokeMethod('_handlers', array($handler));
+				$handler = self::_handlers($handler);
 			}
 			$class = $handler['view'];
 			unset($handler['view']);
 
 			$config = $handler + array('message' => &$message);
-			return $self::invokeMethod('_instance', array($class, $config));
+			return Libraries::instance(null, $class, $config);
 		});
 	}
 
@@ -244,7 +248,7 @@ class Media {
 		$options += $defaults;
 		$params = compact('path', 'options');
 
-		return static::_filter(__FUNCTION__, $params, function($self, $params) {
+		return Filters::run(get_called_class(),__FUNCTION__, $params, function($params) {
 			extract($params);
 
 			if (preg_match('/^[a-z0-9-]+:\/\//i', $path)) {
@@ -364,7 +368,7 @@ class Media {
 	 */
 	protected static function _request($message) {
 		$params = compact('message');
-		return static::_filter(__FUNCTION__, $params, function($self, $params) {
+		return Filters::run(get_called_class(),__FUNCTION__, $params, function($params) {
 			extract($params);
 			$config = array();
 			if ($message && ($baseURL = $message->baseURL)) {
@@ -379,7 +383,7 @@ class Media {
 				}
 				$config += compact('env', 'base');
 			}
-			return $self::invokeMethod('_instance', array('request', $config));
+			return Libraries::instance(null, 'request', $config);
 		});
 	}
 }

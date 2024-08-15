@@ -2,6 +2,7 @@
 
 namespace li3_mailer\net\mail;
 
+use lithium\core\Libraries;
 use RuntimeException;
 use lithium\action\Request;
 use lithium\core\AutoConfigurable;
@@ -299,7 +300,7 @@ class Message {
 		} else {
 			$grammar = array();
 		}
-		$this->_grammar = $this->_instance('grammar', compact('grammar'));
+		$this->_grammar = Libraries::instance(null, $this->_classes['grammar'], compact('grammar'));
 		$this->baseURL = $this->baseURL ?: $this->_discoverURL();
 		if ($this->baseURL && strpos($this->baseURL, '://') === false) {
 			$this->baseURL = 'http://' . $this->baseURL;
@@ -343,6 +344,7 @@ class Message {
 		$this->body[$type] = array_merge((array) $body, (array) $data);
 		$body = join("\n", $this->body[$type]);
 		if ($options['buffer']) {
+            //var_dump($body, $options['buffer']);die();
 			return str_split($body, $options['buffer']);
 		}
 		return $body;
